@@ -1,25 +1,25 @@
-import React, { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { EditorLayout } from '@/components/layout/EditorLayout'
-import { Toaster } from '@/components/ui/toaster'
-import { useEditorStore } from '@/store/editorStore'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { EditorLayout } from '@/components/layout/EditorLayout';
+import { Toaster } from '@/components/ui/toaster';
+import { useEditorStore } from '@/store/editorStore';
 
-// Error Boundary Component
+// Error Boundary for catching runtime errors in the app
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean; error?: Error }
 > {
   constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo)
+    console.error('Error caught by boundary:', error, errorInfo);
   }
 
   render() {
@@ -41,79 +41,72 @@ class ErrorBoundary extends React.Component<
             </button>
           </div>
         </div>
-      )
+      );
     }
-
-    return this.props.children
+    return this.props.children;
   }
 }
 
-// 404 Page Component
-const NotFound: React.FC = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">404</h1>
-        <p className="text-gray-600 mb-8">Page not found</p>
-        <a
-          href="/"
-          className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Go back to editor
-        </a>
-      </div>
+// 404 Page
+const NotFound: React.FC = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-gray-800 mb-4">404</h1>
+      <p className="text-gray-600 mb-8">Page not found</p>
+      <a
+        href="/"
+        className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+      >
+        Go back to editor
+      </a>
     </div>
-  )
-}
+  </div>
+);
 
-// Theme Provider Component
-const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  useEffect(() => {
-    // Initialize theme from localStorage or system preference
-    const savedTheme = localStorage.getItem('theme')
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    const theme = savedTheme || systemTheme
-
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-  }, [])
-
-  return <>{children}</>
-}
-
-// Loading Component
-const LoadingScreen: React.FC = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <div className="text-center">
-        <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600 dark:text-gray-400">Loading editor...</p>
-      </div>
+// Placeholder for future settings page
+const SettingsPage: React.FC = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">Settings</h1>
+      <p className="text-gray-600 mb-8">Settings coming soon.</p>
+      <a
+        href="/"
+        className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+      >
+        Back to Editor
+      </a>
     </div>
-  )
-}
+  </div>
+);
+
+// Placeholder for loading
+const LoadingScreen: React.FC = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <span className="text-lg text-gray-600">Loading...</span>
+  </div>
+);
 
 function App() {
-  const { isLoading } = useEditorStore()
+  const { isLoading } = useEditorStore();
 
   if (isLoading) {
-    return <LoadingScreen />
+    return <LoadingScreen />;
   }
 
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <Router>
-          <div className="App">
-            <Routes>
-              <Route path="/" element={<EditorLayout />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </div>
-        </Router>
-      </ThemeProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<EditorLayout />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </div>
+      </Router>
     </ErrorBoundary>
-  )
+  );
 }
 
-export default App
+export default App;
