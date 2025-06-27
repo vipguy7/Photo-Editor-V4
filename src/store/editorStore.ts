@@ -27,6 +27,10 @@ interface EditorStoreState {
   saveToLocalStorage: () => void;
   updateCanvasSettings: (settings: any) => void;
   updateTextSettings: (settings: any) => void;
+  setActiveObject: (object: any) => void;
+  setCanvas: (canvas: any) => void;
+  saveToHistory: (action: string) => void;
+  loadFromLocalStorage: () => void;
   // ... other actions (add as needed)
 }
 
@@ -112,5 +116,27 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
   updateTextSettings: (settings) => {
     const { textSettings } = get();
     set({ textSettings: { ...textSettings, ...settings }, isDirty: true });
+  },
+
+  setActiveObject: (object: any) => set({ activeObject: object }),
+  setCanvas: (canvas: any) => set({ canvas }),
+  saveToHistory: (action: string) => {
+    const { canvas, history, historyIndex } = get();
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({
+      json: canvas ? canvas.toJSON() : null,
+      action,
+      timestamp: Date.now(),
+    });
+    set({ history: newHistory, historyIndex: newHistory.length - 1, isDirty: true });
+  },
+  loadFromLocalStorage: () => {
+    const { canvas } = get();
+    const data = localStorage.getItem('photoEditorV4Project');
+    if (canvas && data) {
+      canvas.loadFromJSON(JSON.parse(data), () => {
+        canvas.renderAll();
+      });
+    }
   },
 }));
