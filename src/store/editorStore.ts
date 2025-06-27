@@ -1,5 +1,5 @@
 import create from 'zustand';
-import type { Canvas, Object as FabricObject } from 'fabric';
+import type { fabric } from 'fabric';
 
 export interface PresetState {
   id: string;
@@ -28,11 +28,11 @@ interface HistoryEntry {
 interface EditorStoreState {
   history: HistoryEntry[];
   historyIndex: number;
-  activeObject: FabricObject | null;
+  activeObject: fabric.Object | null;
   isDirty: boolean;
   isLoading: boolean;
   presets: PresetState[];
-  canvas: Canvas | null;
+  canvas: fabric.Canvas | null;
   canvasSettings: CanvasSettings;
   textSettings: TextSettings;
   canUndo: () => boolean;
@@ -45,8 +45,8 @@ interface EditorStoreState {
   saveToLocalStorage: () => void;
   updateCanvasSettings: (settings: Partial<CanvasSettings>) => void;
   updateTextSettings: (settings: Partial<TextSettings>) => void;
-  setActiveObject: (object: FabricObject | null) => void;
-  setCanvas: (canvas: Canvas) => void;
+  setActiveObject: (object: fabric.Object | null) => void;
+  setCanvas: (canvas: fabric.Canvas) => void;
   saveToHistory: (action: string) => void;
   loadFromLocalStorage: () => void;
   // ... other actions (add as needed)
@@ -70,7 +70,7 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
   },
 
   undo: () => {
-    const { history, historyIndex, canvas } = get();
+    const { historyIndex, canvas } = get();
     if (historyIndex > 0 && canvas) {
       // Load previous state (implement as needed)
       set({ historyIndex: historyIndex - 1, isDirty: true });
@@ -96,10 +96,11 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
   duplicateSelectedObject: () => {
     const { canvas, activeObject } = get();
     if (canvas && activeObject) {
-      // Deep copy logic here for your object type
-      const clone = { ...activeObject };
-      canvas.add(clone);
-      set({ activeObject: clone, isDirty: true });
+      activeObject.clone((cloned: fabric.Object) => {
+        cloned.set({ left: (activeObject.left || 0) + 20, top: (activeObject.top || 0) + 20 });
+        canvas.add(cloned);
+        set({ activeObject: cloned, isDirty: true });
+      });
     }
   },
 
@@ -136,8 +137,8 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
     set({ textSettings: { ...textSettings, ...settings }, isDirty: true });
   },
 
-  setActiveObject: (object: any) => set({ activeObject: object }),
-  setCanvas: (canvas: any) => set({ canvas }),
+  setActiveObject: (object: fabric.Object | null) => set({ activeObject: object }),
+  setCanvas: (canvas: fabric.Canvas) => set({ canvas }),
   saveToHistory: (action: string) => {
     const { canvas, history, historyIndex } = get();
     const newHistory = history.slice(0, historyIndex + 1);
