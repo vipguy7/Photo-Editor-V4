@@ -10,9 +10,6 @@ import {
   Save,
   Layers,
   Menu as MenuIcon,
-  Home as HomeIcon,
-  Star as StarIcon,
-  Download as DownloadIcon,
 } from 'lucide-react';
 
 // Simple Drawer component for mobile tool actions
@@ -145,5 +142,9 @@ export const EditorLayout: React.FC = () => {
       </Drawer>
 
       {/* Canvas Area: Responsive */}
-     *
-
+      <main className="flex-1 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <CanvasRenderer />
+      </main>
+    </div>
+  );
+};
