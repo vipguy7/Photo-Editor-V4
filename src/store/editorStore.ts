@@ -1,22 +1,40 @@
 import create from 'zustand';
+import type { Canvas, Object as FabricObject } from 'fabric';
 
 export interface PresetState {
   id: string;
   name: string;
-  settings: any;
+  settings: Record<string, unknown>;
   createdAt: number;
 }
 
+interface CanvasSettings {
+  width: number;
+  height: number;
+  backgroundColor: string;
+  // Add more as needed
+}
+
+interface TextSettings {
+  [key: string]: unknown;
+}
+
+interface HistoryEntry {
+  json: object | null;
+  action: string;
+  timestamp: number;
+}
+
 interface EditorStoreState {
-  history: any[];
+  history: HistoryEntry[];
   historyIndex: number;
-  activeObject: any;
+  activeObject: FabricObject | null;
   isDirty: boolean;
   isLoading: boolean;
   presets: PresetState[];
-  canvas: any;
-  canvasSettings: any;
-  textSettings: any;
+  canvas: Canvas | null;
+  canvasSettings: CanvasSettings;
+  textSettings: TextSettings;
   canUndo: () => boolean;
   canRedo: () => boolean;
   undo: () => void;
@@ -25,10 +43,10 @@ interface EditorStoreState {
   duplicateSelectedObject: () => void;
   bringToFront: () => void;
   saveToLocalStorage: () => void;
-  updateCanvasSettings: (settings: any) => void;
-  updateTextSettings: (settings: any) => void;
-  setActiveObject: (object: any) => void;
-  setCanvas: (canvas: any) => void;
+  updateCanvasSettings: (settings: Partial<CanvasSettings>) => void;
+  updateTextSettings: (settings: Partial<TextSettings>) => void;
+  setActiveObject: (object: FabricObject | null) => void;
+  setCanvas: (canvas: Canvas) => void;
   saveToHistory: (action: string) => void;
   loadFromLocalStorage: () => void;
   // ... other actions (add as needed)
@@ -42,7 +60,7 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
   isLoading: false,
   presets: [],
   canvas: null,
-  canvasSettings: {},
+  canvasSettings: { width: 800, height: 600, backgroundColor: '#fff' },
   textSettings: {},
 
   canUndo: () => get().historyIndex > 0,
